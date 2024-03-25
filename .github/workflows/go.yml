@@ -26,3 +26,24 @@ jobs:
 
     - name: Build-windows
       run: GOOS=windows GOARCH=amd64 go build -o emlconvert.exe ./main.go
+    
+     - name: Build-mac
+      run: GOOS=darwin GOARCH=arm64 go build -o emlconvert.mac ./main.go
+    
+    - name: Upload Linux Binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-binary
+        path: emlconvert
+    
+    - name: Upload windows Binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-binary
+        path: emlconvert.exe
+    
+    - name: Upload mac Binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: mac-binary
+        path: emlconvert.mac
