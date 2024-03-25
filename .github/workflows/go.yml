@@ -33,17 +33,17 @@ jobs:
     - name: Upload Linux Binary
       uses: actions/upload-artifact@v3
       with:
-        name: Build
+        name: emlconvert
         path: emlconvert
     
     - name: Upload windows Binary
       uses: actions/upload-artifact@v3
       with:
-        name: Build-windows
+        name: emlconvert.exe
         path: emlconvert.exe
     
     - name: Upload mac Binary
       uses: actions/upload-artifact@v3
       with:
-        name: Build-mac
+        name: emlconvert.mac
         path: emlconvert.mac
