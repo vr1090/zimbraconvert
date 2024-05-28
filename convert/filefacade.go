@@ -1,6 +1,7 @@
 package convert
 
 import (
+	"bytes"
 	"fmt"
 	"io/fs"
 	"os"
@@ -31,30 +32,61 @@ func MoveFile(msgPath, newPath string) error {
 		return err
 	}
 
-	return os.Rename(msgPath, newPath)
+	return CopyFile(msgPath, newPath)
 }
 
-func WriteFile(content string,pathEml string, pathmsg string) error{
-	dir := filepath.Dir(pathEml)
-	err := os.MkdirAll(dir,0755)
-
-	if err!= nil {
+func CopyFile(src, dst string) error {
+	fmt.Println("anjing ", dst)
+	// Open the source file
+	sourceFile, err := os.Open(src)
+	if err != nil {
 		return err
 	}
+	defer sourceFile.Close()
 
-	err = os.WriteFile(pathEml,[]byte(content),0644)
+	// Create the destination file
+	destinationFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destinationFile.Close()
+
+	// Copy the content from source to destination
+	_, err = destinationFile.ReadFrom(sourceFile)
 
 	if err != nil {
 		return err
 	}
 
-	return os.Remove(pathmsg)	
+	// Flush the destination file's write buffer
+	err = destinationFile.Sync()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func WriteFile(content bytes.Buffer, pathEml string, pathmsg string) error {
+	dir := filepath.Dir(pathEml)
+	err := os.MkdirAll(dir, 0755)
+
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(pathEml, content.Bytes(), 0644)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
-
 func FindMsgFile(msgdir string) ([]string, error) {
-	var result = make([]string,0)
+	var result = make([]string, 0)
 
 	err := filepath.Walk(msgdir, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -64,16 +96,16 @@ func FindMsgFile(msgdir string) ([]string, error) {
 		if !info.IsDir() && info.Size() != 0 {
 			if filepath.Ext(path) == SEARCH_EXT {
 				fmt.Println("nemu nih", path)
-				result = append(result, path)				
-			} 
+				result = append(result, path)
+			}
 		}
-		
+
 		return nil
 	})
 
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
-	return result,nil
+	return result, nil
 }

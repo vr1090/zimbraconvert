@@ -42,11 +42,11 @@ func checkMime(fpath string) (string, error) {
 open zip file
 *
 */
-func OpenZip(filepath string) (string, error) {
+func OpenZip(filepath string) (bytes.Buffer, error) {
 	file, err := os.Open(filepath)
 
 	if err != nil {
-		return "", err
+		return bytes.Buffer{}, err
 	}
 
 	defer file.Close()
@@ -55,18 +55,18 @@ func OpenZip(filepath string) (string, error) {
 
 	if err != nil {
 		fmt.Println("gagal baca zip disini kah?", err)
-		return "", err
+		return bytes.Buffer{}, err
 	}
 
 	defer gzReader.Close()
 
 	var buffer bytes.Buffer
 
-	if _, err := io.Copy(&buffer, gzReader); err != nil {
-		return filepath, err
+	if _, err := io.Copy(&buffer,gzReader); err != nil {
+		return bytes.Buffer{}, err
 	}
 
-	return buffer.String(), nil
+	return buffer, nil
 }
 
 func HandlePath(wg *sync.WaitGroup, path string, resultDir string) {
@@ -81,7 +81,7 @@ func HandlePath(wg *sync.WaitGroup, path string, resultDir string) {
 	}
 
 	if strings.Contains(mime, "zip") {
-		var res string
+		var res bytes.Buffer
 		res, err = OpenZip(path)
 
 		if err != nil {
